@@ -1,8 +1,8 @@
 .model small
 .stack 100h
 .data
-        msg1 db 'Enter array elements:- ',13,10,'$'
-        msg2 db 13,10,'Elements of array are:- ',13,10,'$'
+        msg1 db 'Enter array elements:- $'
+        msg2 db 13,10,'Elements of array are:- $'
         array db 5 dup(?)
 .code
         mov     ax,@data
@@ -12,29 +12,32 @@
         mov     ah,9h
         int     21h
 
-        mov     cx,5
-        lea     si,array
+        mov     cx,5	;use cx when you are assigning constant value
+        mov     si,0
 
+       
         accept:
-                mov     [si],al
                 mov     ah,1h
                 int     21h
+                mov	array[si],al
                 inc     si
-                loop    accept
+                dec	cx
+                jnz	accept
 
         lea     dx,msg2
         mov     ah,9h
         int     21h
 
         mov     cx,5
-        lea     si,array
+        mov     si,0
 
         l1:
-                mov     dl,[si]
+                mov     dl,array[si]
                 mov     ah,2h
                 int     21h
                 inc     si
-                loop    l1                            
+                dec	cx	
+                jnz	l1                            
 
         mov     ah,04ch
         int     21h
