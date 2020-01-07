@@ -19,12 +19,12 @@
 	lea	dx,string
 	int	21h
 	
-	lea	si,string
+	mov	si,0
 	
 	start:
-		cmp	[si],'$'
+		cmp	string[si],'$'
 		je	finish
-		inc	bl
+		inc	al
 		inc	si
 		jmp	start
 	finish:
