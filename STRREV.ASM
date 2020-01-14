@@ -18,40 +18,40 @@
     lea si, string
 
     read:
-        mov ah, 01h
-        int 21h
+		mov ah, 01h
+		int 21h
 		mov [si], al
-        inc si
-    	cmp al, 13
-        jnz read
+		inc si
+		cmp al, 13
+		jnz read
 
-    mov ax, si
-    lea bx, string
-    sub ax, bx
+	mov ax, si
+	lea bx, string
+	sub ax, bx
 
-    lea di, result
-    add di, ax
+	lea di, result
+	add di, ax
 	dec di
-    dec di
+	dec di
 
 	lea dx, msg2
-  	mov ah, 09h
-    int 21h 
+	mov ah, 09h
+	int 21h 
     
-    lea si, string
+	lea si, string
 
-    reverse_string:
-        mov al, [si]
-        mov [di], al
-        inc si
-        dec di
-        cmp si,13
-        jnz reverse_string
+	reverse_string:
+		mov al, [si]
+		mov [di], al
+		inc si
+		dec di
+		cmp si,13
+		jnz reverse_string
 
-    lea dx, result
-    mov ah, 09h
-    int 21h
+	lea dx, result
+	mov ah, 09h
+	int 21h
 
-    mov ah, 4Ch
-    int 21h
+	mov ah, 4Ch
+	int 21h
 end

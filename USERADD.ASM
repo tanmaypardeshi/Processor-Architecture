@@ -1,45 +1,55 @@
-.model small
-.stack 100h
-.data
-        msg1 db 13,10,'Enter number 1:- ','$'
-        msg2 db 13,10,'Enter number 2:- ','$'
-        msg3 db 13,10,'Result is:- ','$'
-        a db ?
-        b db ?
+.MODEL  SMALL
+.STACK  100H
+.DATA
 
-.code
-        mov     ax,@data
-        mov     ds,ax
+MSG1    DB      'Enter the first number:- $'
+MSG2    DB      13,10,'Enter the second number:- $'
+MSG3    DB      13,10,'Addition is:- $'
+CHAR    DB      0
 
-        mov     ah,09h
-        mov     dx,OFFSET msg1
-        int     21h
+.CODE
+	  MOV     AX,@data
+        MOV     DS,AX
 
-        mov     ah,01h
-        int     21h
+        MOV     AH,09H
+        LEA	    DX,MSG1		
+        INT     21H
 
-        mov     bl,al
+        MOV     AH,01H
+        INT     21H
+        SUB     AL,30H
+        MOV     BL,AL
 
-        mov     ah,09h
-        mov     dx,OFFSET msg2
-        int     21h
+        MOV     AH,09H
+        LEA	    DX,MSG2		
+        INT     21H
 
-        mov     ah,01h
-        int     21h
+        MOV     AH,01H
+        INT     21H
+        SUB     AL,30H
 
-        mov     cl,al                                         
-        sub     bl,30h
 
-        mov     ah,09h
-        mov     dx,OFFSET msg3
-        int     21h
+        MOV     AH,09H
+        MOV     DX,SEG MSG3
+        MOV     DS,DX
+        MOV     DX,OFFSET MSG3
+        INT     21H
 
-        add     cl,bl
-        mov     dl,cl                   
+        ADD     AL,BL
+        MOV     AH,00H
+        AAA
+        ADD     AH,30H
+        MOV     BX,AX
+        MOV     DL,BH
+        MOV     AH,02H
+        INT     21H
 
-        mov     ah,02h
-        int     21h
+        ADD     BL,30H
+        MOV     DL,BL
+        MOV     AH,02H
+        INT     21H
 
-        mov     ah,04ch
-        int     21h
-end
+        MOV     AH,4CH
+        INT     21H
+
+END
