@@ -16,9 +16,9 @@
 	int	21h
 	
 	lea   si,string
-	mov	ah,01h
 	
 	l1:
+		mov	ah,01h
 		int	21h		
 		cmp	al,13
 		je 	loop1
@@ -27,17 +27,10 @@
 		inc	len
 		jmp 	l1	
 
-	lea	si,string
-		
-	loop1: 
-		mov	ax, [si] 
-		cmp	al,'$'
-		je	label1 
-		inc	si 
-		jmp	loop1	 
+	mov	cx,len
+	dec	cx
 
 	label1: 
-		lea	si,string
 		lea	di,string
 		add	di,len
 		dec	di 
