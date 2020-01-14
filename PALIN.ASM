@@ -5,6 +5,7 @@
 	msg db  13,10,'Enter a string:- $'
 	true db 13,10,'String is palindrome $'
 	false db 13,10,'String is not palindrome $'
+	len dw 00h
 
 .code
 	mov	ax,@data
@@ -14,15 +15,19 @@
 	lea	dx,msg
 	int	21h
 	
-	read:
-		mov	ah, 01h
-		int	21h
-		mov	[si], al
+	lea   si,string
+	mov	ah,01h
+	
+	l1:
+		int	21h		
+		cmp	al,13
+		je 	loop1
+		mov	[si],al
 		inc	si
-		cmp	al, 13
-		jnz	read
+		inc	len
+		jmp 	l1	
 
-		mov si,offset string
+	lea	si,string
 		
 	loop1: 
 		mov	ax, [si] 
@@ -32,12 +37,12 @@
 		jmp	loop1	 
 
 	label1: 
-		mov	di,offset string 
+		lea	si,string
+		lea	di,string
+		add	di,len
 		dec	di 
 
 	loop2: 
-		cmp	si,di 
-		jl	output1 
 		mov	ax,[si] 
 		mov	bx,[di]
 		cmp	al,bl
