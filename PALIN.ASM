@@ -1,60 +1,63 @@
 .model small
 .stack 100h
 .data
-	string db 80 dup(?)
-	msg db  13,10,'Enter a string:- $'
-	true db 13,10,'String is palindrome $'
-	false db 13,10,'String is not palindrome $'
-	len dw 00h
-
+	msg1    db      13,10,'Enter a string:- $'
+	pal	db	13,10,'Palindrome.',13,10,'$'
+	notpal	db	13,10,'Not a palindrome.',13,10,'$'
+	str1	db	20 dup(?)
+	len	dw	?
+	
 .code
-	mov	ax,@data
-	mov	ds,ax
+	mov ax, @data
+	mov ds, ax
 	
-	mov	ah,9h
-	lea	dx,msg
-	int	21h
+	mov ah, 09h
+	mov dx, offset msg1
+	int 21h
 	
-	lea   si,string
+	lea si, str1
+	mov len, 0
 	
-	l1:
-		mov	ah,01h
-		int	21h		
-		cmp	al,13
-		je 	loop1
-		mov	[si],al
-		inc	si
-		inc	len
-		jmp 	l1	
-
-	mov	cx,len
-	dec	cx
-
-	label1: 
-		lea	di,string
-		add	di,len
-		dec	di 
-
-	loop2: 
-		mov	ax,[si] 
-		mov	bx,[di]
-		cmp	al,bl
-		jne	output2 
-		dec	di 
-		inc	si 
-		jmp loop2 
-
-	output1: 
-		lea	dx,true 
-		mov	ah,9h
-		int 21h
-		
-	output2: 
-		lea	dx,false 
-		mov	ah,9h
-		int 21h
-
-	mov	ah,4ch
-	int	21h
+	loop1:
+	mov ah, 01h
+	int 21h
+	mov [si], al
+	inc si
+	inc len
+	cmp al, 13
+	jne loop1
+	
+	sub len, 1
+	
+	lea si, str1
+	lea di, str1
+	add di, len
+	sub di, 1
+	mov cx, len
+	
+	loop3:
+	mov al, [si]
+	mov bl, [di]
+	cmp al, bl
+	jne nopal
+	inc si
+	dec di
+	dec cx
+	jnz loop3
+	
+	mov ah, 09h
+	mov dx, offset pal
+	int 21h
+	jmp palend
+	
+	
+	nopal:
+	mov ah, 09h
+	mov dx, offset notpal
+	int 21h
+	
+	palend:
+	mov ah, 04ch
+	int 21h
 end
 
