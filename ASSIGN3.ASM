@@ -1,225 +1,206 @@
-.model small
-.stack 100h
-
-;----------------------
-;DATA SEGMENT
-;----------------------
-.data
-	chc db 13,10,"Choose Operation: $"
-	chc1 db 13,10," 1. Display Length $"
-	chc2 db 13,10," 2. Display Reverse $"
-	chc3 db 13,10," 3. Check Palindrome $"
-	chc4 db 13,10," 4. Exit $"
-	chc5 db 13,10,"Enter your choice:- $"
-	len dw 00h
-	string db 40 dup(?)
-	result db 40 dup(?)
-	msg db 13,10,"Please enter the String:- $"
-	msg1 db 13,10,"The entered String is:- $"
-	msg2 db 13,10,"The length of the entered String is:- $"
-	msg3 db 13,10,"The reverse of the entered String is:- $"
-	pal db 13,10,"The String is a Palindrome. $"
-	npal db 13,10,"The String is not a Palindrome. $"
-	newl db 13,10," $"
-	
-;----------------------
-;MACROS
-;----------------------	
-
-initz macro
-	mov ax,@data
-	mov ds,ax
-endm	
-
 print macro m
-	lea	dx,m
-	mov	ah,9h
-	int	21h
+mov ah,09h
+mov dx,offset m
+int 21h
 endm
 
-;----------------------
-;CODE
-;----------------------	
+.model small
+
+
+;******  Data Segment ******
+.data
+
+menu db 10,13, "Menu: "
+     db 10,13, "1.Enter the string "
+     db 10,13, "2.Reverse "
+     db 10,13, "3.Check for palindrome "
+     db 10,13, "4.Exit  "
+     db 10,13, "  "
+     db 10,13, "Your choice: $"
+msg1 db 10,13, "Your choice is: $"
+mc6 db 10,13, "Exiting the program $"
+mc7 db 10,13, "Invalid choice....try again $"
+empty db 10,13, "   $"
+str1 db 25,?,25 dup('$')
+str2 db 25,?,25 dup('$')
+len db ?
+mstring db 10,13, "Enter the string: $"
+notpalin db 10,13, "String is not a palindrome. $"
+palin db 10,13, "String is a palindrome. $"
+mconcat db 10,13, "Concatenated string: $"
+mscount db 10,13, "Number of spaces: $"
+mlength db 10,13, "Length is: $"
+mreverse db 10,13, "Reversed string: $"
+scount db ?
+
+
+
+
 
 .code
 
-	initz
-	
-	l: 
-		print	chc
-		print chc1
-		print chc2
-		print chc3
-		print chc4
-		print newl
-		print chc5
-		
+start:
+mov ax,@data
+mov ds,ax
 
-		mov ah,01h
-		int 21h
-		sub al,30h
+again:
 
-		cmp al,04h
-		jz exit
+print menu
+call accept 
+mov bl,al
 
-;----------------------
-;PALINDROME
-;----------------------
-	cmp	al,03h
-	jne	n1
-	call	Palindrome
-		
-;----------------------
-;REVERSE
-;----------------------
 
-	n1: 
-		cmp al,02h 
-		jne n2   
-	call Reverse
-	
-	
-;----------------------
-;STRLEN
-;----------------------
+case1:
 
-	n2: 
-		cmp	al,01h
-		jne	l
-	call Strlen
-	jmp
-			
-;----------------------
-;EXIT
-;----------------------
+        cmp bl,"1"  
+        jne case2    
+        
+		print empty         
+		print mstring
+        call accept_string   
 
-	exit: 
-		mov	ah,4ch
-		int	21h
-		
-;----------------------
-;PROCEDURES
-;----------------------
+        mov cl,str1+1        
+        mov bl,cl             
+		print mlength       
+        call display1        
+		print empty
+        jmp again            
 
-Palindrome proc far
-	print	msg
-		
-	lea	si, string
-	mov	len, 0
 
-	loop1:
-		mov	ah, 01h
-		int	21h
-		mov	[si], al
-		inc	si
-		inc	len
-		cmp	al, 13
-		jne	loop1
 
-	sub 	len, 1
+case2:  cmp bl,"2"       
+        jne case3          
+		print empty
 
-	lea	si, string
-	lea	di, string
-	add	di, len
-	sub	di, 1
-	mov	cx, len
+        mov si,offset str1      
+        mov di,offset str2    
 
-	loop3:
-		mov al, [si]
-		mov bl, [di]
-		cmp al, bl
-		jne nopal
+
+        mov al,[si]     
+        mov [di],al         
+        inc si              
+        inc di
+
+
+        mov al,[si]
+        mov [di],al
+        inc si
+        inc di
+
+        mov cl,str1+1        
+        mov ch,00              
+        add si,cx             
+        dec si               
+        
+move_more: mov al,[si]       
+           mov [di],al   
+           dec si           
+           inc di
+           dec cl
+           jnz move_more
+
+        
+		print mreverse
+        print str2+2     
+		print empty
+
+        mov ah,00
+        mov al,cl
+        jmp again
+
+case3:  cmp bl,"3"   
+        jne case4         
+		print empty
+
+        mov si,offset str1
+		mov cl,str1+1        
+		mov ch,00h
+		mov len,cl
 		inc si
-		dec di
-		dec cx
-		jnz loop3
-
-	print pal
-	jmp palend
-
-
-	nopal:
-		print npal
-
-	palend:
-		jmp l
-Palindrome endp
-
-Reverse proc far
-	print msg
-
-	lea 	si, string
-
-	read:
-		mov	ah, 01h
-		int	21h
-		mov	[si], al
-		inc	si
-		cmp	al, 13
-		jnz	read
-
-	mov	ax, si
-	lea	bx, string
-	sub	ax, bx
-
-	lea	di, result
-	add	di, ax
-	dec	di
-	dec	di
-
-	print	msg1
-	print string
-	print msg3
-
-	lea si, string
-
-	reverse_string:
-		mov	al, [si]
-		mov	[di], al
-		inc	si
-		dec	di
-		cmp	si,13
-		jnz	reverse_string
-
-	print	result
-	jmp	l
-	
-Reverse endp
-
-Strlen proc far
-	mov	len,00h
-	print	msg
-	
-	lea 	si,string
-	mov	ah,01h
-	l1:
-		int	21h		
-		cmp	al,13
-		je 	loopend
-	
-		mov	[si],al
-		inc	si
-		inc	len
-		jmp 	l1
-	
-	loopend:
-		mov	al,'$'
-		mov	[si],al
+		add si,cx       
+		        
+		mov di,offset str1   
+		add di,0002h        
 		
-		print	msg1
-		print string
-		print msg2
-	
-		xor	dx,dx
-		mov	dx,len
-		add	dx,30h
-	
-		mov	ah,02h
-		int	21h
-		
-	jmp	l
+				
+         
+		mov cl,len ;load counter
+ cmpagain: mov al,[si]
+           mov ah,[di]
+		   inc di
+		   dec si
+           cmp al,ah
+           jne nopalin
+		   dec cl
+		   jnz cmpagain
+          	
+		print palin
+		print empty
+        jmp again		
+nopalin: print notpalin		
+		print empty
+        jmp again
 
-Strlen endp
 
+	   
+case4: cmp bl,"4"     
+       jne case5      
+	   print mc6
+	   jmp exit
+        	   
+case5: print mc7   
+       jmp again   
+
+exit:
+mov ah,4ch      
+int 21h
+
+
+
+accept proc near
+
+mov ah,01
+int 21h
+ret
+accept endp
+
+display1 proc near
+
+   mov al,bl
+   mov bl,al
+   and al,0f0h
+   mov cl,04
+   rol al,cl
+
+   cmp al,09
+   jbe number
+   add al,07
+number:  add al,30h
+         mov dl,al
+         mov ah,02
+         int 21h
+
+         mov al,bl
+         and al,00fh
+         cmp al,09
+         jbe number2
+         add al,07
+number2:  add al,30h
+          mov dl,al
+          mov ah,02
+          int 21h
+ret
+display1 endp
+
+
+
+accept_string proc near
+
+mov ah,0ah          
+mov dx,offset str1  
+int 21h
+ret
+accept_string endp
+
+end start
 end
-
