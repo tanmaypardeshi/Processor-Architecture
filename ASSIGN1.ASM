@@ -59,7 +59,7 @@
 	skip2:
 		sub	al,30h
 		cmp	ch,01H
-		je 	kip3
+		je 	skip3
 		mov	cl,04h
 		rol	al,cl
 	skip3:
@@ -180,4 +180,4 @@
 
 	mov	ah,4CH                                      
 	int	21h 
-end                                           s
+end                                           
