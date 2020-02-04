@@ -1,6 +1,6 @@
 .model small
 .data
-       .data
+        
         m1 db 10d,13d,"enter first string:  $"
         m2 db 10d,13d,"enter second string: $"
         m3 db 10d,13d,"concatenated string: $"
