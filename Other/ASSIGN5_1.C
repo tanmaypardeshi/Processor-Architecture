@@ -1,12 +1,10 @@
-*=====================================================================
- Assignment 5    (using int86x,int86)
- Title :	    Delete a file, Create a directory
- Problem Statement: Write menu driven program in C using int86,int86x,intdos,intdosx
-					functions for implementing following operations on file.
-					1. To delete a file
-					2. To create a directory
- 
-
+/*=====================================================================
+Assignment 5    (using int86x,int86)
+Title :	    Delete a file, Create a directory
+Problem Statement: Write menu driven program in C using int86,int86x, 
+intdos,intdosx functions for implementing following operations on file.
+1. To delete a file
+2. To create a directory
 ===================================================================== */
 
 #include<dos.h>
@@ -31,9 +29,10 @@ void CRDIR()
 	int86x(0X21,&inreg,&outreg,&segreg);
 	if(outreg.x.cflag)
 		printf("\nERROR IN CREATING DIRECTORY\n");
-		else
+	else
 		printf("\nDIRECTORY IS CREATED\n");
 }
+
 void DELFILE()
 {
 	printf("\nEnter the filename to delete:\n");

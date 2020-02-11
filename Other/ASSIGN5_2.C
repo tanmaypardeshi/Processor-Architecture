@@ -2,11 +2,9 @@
  Assignment 5   (using intdosx,intdos)
  Title :	    Delete a file, Create a directory  
  Problem Statement: Write menu driven program in C using int86,int86x,intdos,intdosx
-					functions for implementing following operations on file.
-					1. To delete a file
-					2. To create a directory
- 
-
+functions for implementing following operations on file.
+1. To delete a file
+2. To create a directory
 ===================================================================== */
 
 #include<dos.h>
