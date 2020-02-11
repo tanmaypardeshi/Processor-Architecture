@@ -32,7 +32,6 @@ endm
 .code
 	public strcmp,concat,substring
 	
-	
 concat proc
         
 	scall m1,09h    

@@ -15,18 +15,15 @@
 
 .code
 
-;---Initialise data seg---
 	mov ax, @data
 	mov ds, ax
 	
-;---Print enter str---
 	mov dx, offset msg1
 	mov ah, 09h
 	int 21h
 	lea si, res
 	mov ah, 01h
 	
-;---Input str char by char---
 	loop1:
 		int 21h
 		cmp al, 13
@@ -34,66 +31,61 @@
 		mov [si], al
 		inc si
 		inc len
-	
+
 		jmp loop1
 	
-	
-;---Append '$' to end---
 	loop1end:
 		mov al, '$'
 		mov [si], al
 	
-;---Print string is : ---
-	mov dx, offset msg2
+	main:	
+		lea dx,menu
+		mov ah,09h      ;display menu string
+		int 21h
+
+		mov ah,01h      ;single char input
+		int 21h
+
+		cmp al,'1'
+		je case1
+		cmp al,'2'
+		je case2
+		cmp al,'3'
+		je case3
+		jmp exit
+		
+		case1:  
+			call strlen
+			jmp main
+		case2:  
+			call reverse
+			jmp main
+		case3:
+			call palindrome
+			jmp main
+		exit:
+			mov ah,4ch
+			int 21h
+	
+proc strlen near
+	mov dx, offset msg3
 	mov ah, 09h
 	int 21h
 	
-;---Print the string---
-	mov dx, offset res
-	mov ah, 09h
-	int 21h
-	
-;------ Menu driven ------
-	menuloop:
-		mov dx, offset menu
-		mov ah, 09h
-		int 21h
-	
-		mov ah, 01h
-		int 21h
-		cmp al, 31h
-		je callen
-		cmp al, 32h
-		je rev
-		cmp al, 33h
-		je cpal
-		jmp progend
-	
-	
-;---Print length is---
-	callen:
-		mov dx, offset msg3
-		mov ah, 09h
-		int 21h
-	
-;---Print length---
 	xor dx,dx
 	mov dx, len
 	add dx, 30h
 	mov ah, 02h
 	int 21h
-	jmp menuloop
+	ret
 	
+endp
+
+proc reverse near
+	mov dx, offset msg4
+	mov ah, 09h
+	int 21h
 	
-	
-;---Print reverse---
-	rev:
-		mov dx, offset msg4
-		mov ah, 09h
-		int 21h
-	
-	
-;---Print reverse string---
 	lea di, res
 	add di, len
 	sub di, 1
@@ -107,10 +99,10 @@
 		dec di
 		dec cx
 		jnz loop2
-	
-		jmp menuloop
-			
-;---Check Palindrome---
+	ret
+endp
+
+proc palindrome near
 	cpal:
 		lea si, res
 		lea di, res
@@ -130,27 +122,15 @@
 		
 		xor ax, ax
 		
-;--- Print str is pal ---
 	mov dx, offset msg5
 	mov ah, 09h
 	int 21h
+	ret
 	
-	jmp palend
-	
-	
-;--- Print str not pal ---
 	notpal:	
 		mov dx, offset msg6
 		mov ah, 09h
 		int 21h
-	
-	palend:
-		jmp menuloop
-	
-	
-	
-;---Terminate program---
-	progend:
-		mov ah, 04ch
-		int 21h
+		ret
+endp
 end
