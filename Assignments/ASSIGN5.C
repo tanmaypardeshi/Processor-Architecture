@@ -87,73 +87,76 @@ void deletefile()
 
 void copyfile()
 {
-	char far(filename1[128]);
-	char far(filename2[128]);
-	char far(buffer[256]);
-	int h1,h2;
+	char far(filename[20]), far(newfile[20]);
+	int h1, h2, bytes;
+	char far(buffer[512]);
+
+	printf("\nEnter the name of the file to be copied :\n");
+	scanf("%s",filename);
+
+	in.h.ah = 0x3D;	//open file in read mode
+	in.x.dx = FP_OFF(filename);
+	s.ds = FP_SEG(filename);
+	in.h.al = 0x00;
+	int86x(0x21, &in, &out, &s);
+	h1 = out.x.ax;
+
+	if(out.x.cflag)
+		printf("\nError! File could not be read.\n",filename);
 	
-	flushall();
-	printf("\nEnter name of the file to be copied:- ");
-	gets(filename1);
-	in.h.ah=0X3D;
-	in.x.dx=FP_OFF(filename1);
-	s.ds=FP_SEG(filename1);
-	in.h.al=0X00;
-	intdosx(&in,&out,&s);
-	h1=out.x.ax;
+	printf("\nEnter a name for the new file :\n");
+	scanf("%s",newfile);
+
+	in.h.ah = 0x3C;
+	in.x.dx = FP_OFF(newfile);
+	in.x.cx = 0x00;
+	int86(0x21, &in, &out);
+
 	if(!out.x.cflag)
-		printf("\n\n Reading file: - %s",filename1);
+		printf("\nNew file created!\n");
+		
+	in.h.ah = 0x3D;	//open file in write mode
+	in.x.dx = FP_OFF(newfile);
+	in.h.al = 0x01;
+	int86(0x21, &in, &out);
+	h2 = out.x.ax;
+	
+	
+	in.h.ah = 0x3F;	//read file
+	in.x.bx = h1;
+	in.x.cx = 0xFF;
+	in.x.dx = FP_OFF(buffer);
+	s.ds = FP_SEG(buffer);
+	int86x(0x21, &in, &out, &s);
+	bytes = out.x.ax;
+	
+	if(!out.x.cflag)
+	{
+		printf("\nReading file....\n");
+		printf("\nReading %u bytes..\n",out.x.ax);
+	}
+	
+	in.h.ah = 0x40;	//write to file
+	in.x.bx = h2;
+	in.x.cx = bytes;
+	in.x.dx = FP_OFF(buffer);
+	s.ds = FP_SEG(buffer);
+	int86x(0x21, &in, &out, &s);
+	
+	
+	if(out.x.cflag)
+		printf("\nError copying file!\n");
 	else
-		printf("\nNot reading file:- %s", filename1);
-
-	printf("\n\nEnter new filename to be created:- ");
-	gets(filename2);
-	in.h.ah=0X3C;
-	in.x.dx=FP_OFF(filename2);
-	in.x.cx=0X00;
-	intdosx(&in,&out,&s);
-	
-	if(out.x.cflag==0)
-		printf("\nCreated file: -%s",filename2);
-	
-	in.h.ah=0X3D;
-	in.x.dx=FP_OFF(filename2);
-	s.ds=FP_SEG(filename2);
-	in.h.al=0X01;
-
-	intdosx(&in,&out,&s);
-	h2=out.x.ax;
-	if(!out.x.cflag)
-		printf("\nFile %s opened in write mode",filename2);
-	
-	in.h.ah=0X3F;
-	in.x.bx=h1;
-	in.x.cx=0XFF;
-	in.x.dx=FP_OFF(buffer);
-	s.ds=FP_SEG(buffer);
-	intdosx(&in,&out,&s);
-	if(!out.x.cflag)
 	{
-		printf("\nReading file %s",filename1);
-		printf("\nBytes read:- %u",out.x.ax);
+		printf("\Writing %u bytes..\n",out.x.ax);
+		printf("\nFile copied successfully!\n");
 	}
+
+	in.h.ah = 0x3E;	//close file
+	in.x.dx = h1;
+	int86(0x21, &in, &out);
 	
-	
-	in.h.ah=0X40;
-	in.x.bx=h2;
-	in.x.cx=0XFF;
-	in.x.dx=FP_OFF(buffer);
-	s.ds=FP_SEG(buffer);
-	intdosx(&in,&out,&s);
-	if(!out.x.cflag)
-	{
-		printf("\nWriting file %s",filename1);
-		printf("\nBytes written:- %u",out.x.ax);
-	}
-	in.h.ah=0X3E;
-	in.x.bx=h1;
-	intdos(&in,&out);
-	in.h.ah=0X3E;
-	in.x.bx=h2;
-	intdos(&in,&out);
+	in.h.ah = 0x3E;	//close file
+	in.x.dx = h2;
+	int86(0x21, &in, &out);
 }
