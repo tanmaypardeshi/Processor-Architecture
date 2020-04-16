@@ -4,70 +4,60 @@
 ;Write ALP to interface 8051 with: LCD to display message.
 ;---------------------------------------------------------
 
-	MOV	81H,#30H	;Initialize stack pointer
+	;calls a time delay before sending next data/command
+	;P2.0-P2.7 are connected to LCD data pins D0-D7
+	;P1.0 is connected to RS pin of LCD
+	;P1.1 is connected to R/W pin of LCD
+	;P1.2 is connected to E pin of LCD
 
-	MOV	A,#3CH		
-	LCALL	COMMAND
-
-	MOV	A,#0EH		;Command for setting display cursor on
-	LCALL 	COMMAND
-
-	MOV	A,#01H		;Command for clearing display
-	LCALL	COMMAND
-
-	MOV	A,#06H		;Shift cursor right
-	LCALL	COMMAND
-
-	MOV	A,#0CH		;Cursor line 2, positiion 0
-	LCALL	COMMAND
-
-	MOV	A,#'H'		;Display letter H
-	LCALL	DISPLAY
-
-	MOV	A,#'E'		;Display letter E
-	LCALL	DISPLAY
-	
-	MOV	A,#'L'		;Display letter L
-	LCALL	DISPLAY
-	
-	MOV	A,#'L'		;Display letter L
-	LCALL	DISPLAY
-	
-	MOV	A,#'O'		;Display letter O
-	LCALL	DISPLAY
-
-
-HERE:	SJMP	HERE
-
-;Command routine
-COMMAND:
-	LCALL	READY		;Check if LCD is ready
-	MOV	P1,A		;Issue command code
-	CLR	P3.2		;Make RS=0 to issue command
-	CLR	P3.3		;Make R/W=0 to enable writing
-	SETB	P3.4		;Make E=1
-	CLR	P3.4		;Make E=0
-	RET	
-
-;Display Routine
-DISPLAY:
-	LCALL	READY		;Check if LCD is ready
-	MOV	P1,A		;Give data
-	SETB	P3.2		;RS=1 TO get data
-	CLR	P3.3		;Make R/W=0 to enable writing
-	SETB	P3.4		;Make E=1
-	CLR	P3.4		;Make E=0
+	ORG 	0H
+	MOV 	A,#38H 		;INIT. LCD 2 LINES, 5X7 MATRIX
+	ACALL 	COMNWRT 	;call command subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#0EH 		;display on, cursor on
+	ACALL 	COMNWRT 	;call command subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#01 		;clear LCD
+	ACALL 	COMNWRT 	;call command subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#06H 		;shift cursor right
+	ACALL 	COMNWRT 	;call command subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#080H 		;cursor at line 1, pos.0 
+	ACALL 	COMNWRT 	;call command subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#'P' 		;display letter P
+	ACALL 	DATAWRT 	;call display subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#'I' 		;display letter I
+	ACALL 	DATAWRT 	;call display subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#'C' 		;display letter C
+	ACALL 	DATAWRT 	;call display subroutine
+	ACALL 	DELAY 		;give LCD some time
+	MOV 	A,#'T' 		;display letter T
+	ACALL 	DATAWRT 	;call display subroutine
+AGAIN: SJMP 	AGAIN 	;stay here
+COMNWRT: 				;send command to LCD
+	MOV 	P2,A 			;copy reg A to port 1
+	CLR 	P1.0 			;RS=0 for command
+	CLR 	P1.1 			;R/W=0 for write
+	SETB 	P1.2 			;E=1 for high pulse
+	ACALL 	DELAY 		;give LCD some time
+	CLR 	P1.2 			;E=0 for H-to-L pulse
 	RET
+DATAWRT: 				;write data to LCD
+	MOV 	P2,A 			;copy reg A to port 1
+	SETB 	P1.0 			;RS=1 for data
+	CLR 	P1.1 			;R/W=0 for write
+	SETB 	P1.2 			;E=1 for high pulse
+	ACALL 	DELAY 		;give LCD some time
+	CLR 	P1.2 			;E=0 for H-to-L pulse
+	RET
+DELAY: 	MOV 	R3,#50 	;50 or higher for fast CPUs
+HERE2: 	MOV 	R4,#255 	;R4 = 255
+HERE: 	DJNZ 	R4,HERE 	;stay until R4 becomes 0
+	DJNZ 	R3,HERE2
+	RET
+	END
 
-;Ready routine
-READY:
-	CLR	P3.4		;Disable display
-	CLR	P3.2		;RS = 0 in order to access command register
-	MOV	P1,#0FFH	;Configure P1 as input port
-	SETB	P3.3		;R/W=1 to enable writing
-	L1:
-		SETB	P3.4	;Make E=1
-		JB	P1.7,L1	;Check D7 bit. If 1,LCD is busy wait till it becomes 0
-		CLR	P3.4	;Make E=0 to disable display
-		RET
-END

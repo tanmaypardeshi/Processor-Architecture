@@ -5,19 +5,27 @@
 ;motor with different step angles and speeds.
 ;---------------------------------------------------------
 
-	MOV	A,#66H		;Load step sequence
-	L1:
-		MOV	P1,A	;Give sequence to motor	
-		RR	A	;Rotate right clockwise
-		ACALL	DELAY	;Wait for sometime
-		SJMP	L1	;Continue
+;CLOCKWISE ROTATION
 
-	DELAY:
-		MOV	R2,#100
-	L3:
-		MOV	R3,#255
-	L2:
-		DJNZ	R3,L2
-		DJNZ	R2,L3
-		RET
-END
+MAIN: 
+	MOV A,#0AH
+	MOV P0,A
+	CALL DELAY
+	MOV A,#06H
+	MOV P0,A
+	CALL DELAY
+	MOV A,#05H
+	MOV P0,A
+	CALL DELAY
+	MOV A,#09H
+	MOV P0,A
+	CALL DELAY
+SJMP MAIN
+DELAY: 
+  	L2:  MOV R1,#0FFH
+  	L1:  MOV R3,#0FFH
+  	L3:  DJNZ R3,L3
+        DJNZ R1,L1
+        
+      RET
+ END
