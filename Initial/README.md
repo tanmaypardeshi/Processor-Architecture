@@ -15,5 +15,4 @@
 |[PICT.ASM](PICT.ASM)|Example of TASM|
 |[PROC.ASM](PROC.ASM)|Example of procedures|
 |[USERADD.ASM](USERADD.ASM)|Input from user and add example 1|
-|[USERADD2.ASM](USERADD2.ASM)|Input from user and add example 2|
 

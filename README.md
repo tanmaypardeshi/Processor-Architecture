@@ -38,7 +38,7 @@
 |[PICT.ASM](Initial/PICT.ASM)|Example of TASM|
 |[PROC.ASM](Initial/PROC.ASM)|Example of procedures|
 |[USERADD.ASM](Initial/USERADD.ASM)|Input from user and add example 1|
-|[USERADD2.ASM](Initial/USERADD2.ASM)|Input from user and add example 2|
+
 
 
 ## Table of Contents for Basic String Programs in TASM
